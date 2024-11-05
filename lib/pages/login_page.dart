@@ -1,7 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../component/my_button.dart';
 import '../component/my_textfield.dart';
+import '../error/error.dart'; // Assuming you have an error dialog component
 
 class LoginPage extends StatelessWidget {
   LoginPage({super.key, required this.onTap});
@@ -11,7 +13,43 @@ class LoginPage extends StatelessWidget {
 
   final void Function()? onTap;
 
-  void login() {}
+  void login(BuildContext context) async {
+    // Check if fields are empty
+    if (emailController.text.isEmpty || passwordController.text.isEmpty) {
+      errorDialog(context, "Please fill out all fields");
+      return;
+    }
+
+    // Show loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+
+    try {
+      // Log in user with Firebase
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
+
+      // Close the loading dialog on success
+      Navigator.of(context).pop();
+
+      // Optionally, navigate to another screen here
+      // Navigator.of(context).pushReplacement(...);
+
+    } on FirebaseAuthException catch (e) {
+      Navigator.of(context).pop(); // Close the loading dialog
+      errorDialog(context, e.message ?? "An error occurred during login.");
+    } catch (e) {
+      Navigator.of(context).pop(); // Close the loading dialog
+      errorDialog(context, "An unknown error occurred.");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,10 +77,9 @@ class LoginPage extends StatelessWidget {
                   fontSize: 40,
                 ),
               ),
-
-              // email text field
               const SizedBox(height: 20),
 
+              // email text field
               MyTextField(
                 hintText: "Email",
                 obscureText: false,
@@ -65,7 +102,7 @@ class LoginPage extends StatelessWidget {
                   TextButton(
                     onPressed: () {},
                     child: Text(
-                      "Forgot Password ?",
+                      "Forgot Password?",
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.inversePrimary,
                       ),
@@ -73,13 +110,12 @@ class LoginPage extends StatelessWidget {
                   ),
                 ],
               ),
-
               const SizedBox(height: 10),
 
               // login button
               MyButton(
                 text: "Login",
-                onTap: login,
+                onTap: () => login(context),
               ),
 
               const SizedBox(height: 20),
@@ -100,7 +136,6 @@ class LoginPage extends StatelessWidget {
                       "Register Now",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        // color: Theme.of(context).colorScheme.inversePrimary,
                       ),
                     ),
                   ),
