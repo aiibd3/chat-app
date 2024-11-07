@@ -37,11 +37,10 @@ class LoginPage extends StatelessWidget {
       );
 
       // Close the loading dialog on success
-      Navigator.of(context).pop();
+      if (context.mounted) Navigator.of(context).pop();
 
       // Optionally, navigate to another screen here
       // Navigator.of(context).pushReplacement(...);
-
     } on FirebaseAuthException catch (e) {
       Navigator.of(context).pop(); // Close the loading dialog
       errorDialog(context, e.message ?? "An error occurred during login.");
