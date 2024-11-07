@@ -10,7 +10,6 @@ class HomePage extends StatelessWidget {
 
   final ChatServices chatServices = ChatServices();
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,7 +19,7 @@ class HomePage extends StatelessWidget {
         elevation: 0.0,
         centerTitle: true,
       ),
-      drawer: MyDrawer(),
+      drawer: const MyDrawer(),
       body: _buildUserList(),
     );
   }
@@ -46,10 +45,12 @@ class HomePage extends StatelessWidget {
         // return a list of users
         return ListView(
           children: snapshot.data!
-              .map<Widget>((userData) => _buildUserListItem(
-            userData,
-            context,
-          ))
+              .map<Widget>(
+                (userData) => _buildUserListItem(
+                  userData,
+                  context,
+                ),
+              )
               .toList(),
         );
       },
@@ -58,16 +59,16 @@ class HomePage extends StatelessWidget {
 
   Widget _buildUserListItem(
       Map<String, dynamic> userData, BuildContext context) {
-
     return UserTile(
       text: userData['username'],
-      onTap: (){
-
+      onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => ChatPage(
-            receiverEmail: userData['email'],
-          )),
+          MaterialPageRoute(
+            builder: (context) => ChatPage(
+              receiverEmail: userData['email'],
+            ),
+          ),
         );
       },
     );
