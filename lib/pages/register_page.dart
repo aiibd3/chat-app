@@ -4,6 +4,7 @@ import 'package:logger/logger.dart';
 import '../component/my_button.dart';
 import '../component/my_textfield.dart';
 import '../error/error.dart';
+import '../services/auth/auth_service.dart';
 
 class RegisterPage extends StatefulWidget {
   RegisterPage({super.key, required this.onTap});
@@ -26,50 +27,36 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController confirmPasswordController =
       TextEditingController();
 
-  void registerUser() async {
-    // Check if all fields are filled
-    if (usernameController.text.isEmpty ||
-        emailController.text.isEmpty ||
+  void registerUser(BuildContext context) async {
+    final authService = AuthService();
+
+    // Check if any required field is empty
+    if (emailController.text.isEmpty ||
         passwordController.text.isEmpty ||
         confirmPasswordController.text.isEmpty) {
-      errorDialog(context, "Please fill out all fields");
-    } else if (passwordController.text != confirmPasswordController.text) {
-      // Check if passwords match
+      errorDialog(context, "Please fill in all fields!");
+      return;
+    }
+
+    // Check if passwords match
+    if (passwordController.text != confirmPasswordController.text) {
       errorDialog(context, "Passwords don't match!");
-    } else {
-      // Show loading indicator if both checks pass
+      return;
+    }
+
+    // Attempt to register the user
+    try {
+      await authService.signUpUserWithEmailAndPassword(
+          emailController.text, passwordController.text);
+      // You might want to navigate to the next screen or show a success message here
+    } catch (e) {
       showDialog(
         context: context,
-        barrierDismissible: false,
-        builder: (context) => const Center(
-          child: CircularProgressIndicator(),
+        builder: (context) => AlertDialog(
+          title: const Text('Error'),
+          content: Text(e.toString()),
         ),
       );
-
-      try {
-        // Register user with Firebase
-        UserCredential userCredential =
-        await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: emailController.text.trim(),
-          password: passwordController.text.trim(),
-        );
-
-        // Close the loading dialog on success
-        Navigator.of(context).pop();
-
-        // Optionally navigate to another screen here
-        // Navigator.of(context).pushReplacement(...);
-
-      } on FirebaseAuthException catch (e) {
-        // Close loading dialog and show Firebase error
-        Navigator.of(context).pop();
-        errorDialog(context, e.message ?? "An error occurred during registration.");
-      } catch (e) {
-        // Close loading dialog and show generic error
-        Navigator.of(context).pop();
-        logger.e("An unknown error occurred: $e");
-        errorDialog(context, "An unknown error occurred.");
-      }
     }
   }
 
@@ -136,7 +123,7 @@ class _RegisterPageState extends State<RegisterPage> {
               // registerUser button
               MyButton(
                 text: "Register",
-                onTap: registerUser,
+                onTap: () => registerUser(context),
               ),
               const SizedBox(height: 20),
 

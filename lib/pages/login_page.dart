@@ -1,9 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
 import '../component/my_button.dart';
 import '../component/my_textfield.dart';
-import '../error/error.dart'; // Assuming you have an error dialog component
+import '../services/auth/auth_service.dart'; // Assuming you have an error dialog component
 
 class LoginPage extends StatelessWidget {
   LoginPage({super.key, required this.onTap});
@@ -14,39 +12,21 @@ class LoginPage extends StatelessWidget {
   final void Function()? onTap;
 
   void login(BuildContext context) async {
-    // Check if fields are empty
-    if (emailController.text.isEmpty || passwordController.text.isEmpty) {
-      errorDialog(context, "Please fill out all fields");
-      return;
-    }
-
-    // Show loading indicator
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
+    final authService = AuthService();
 
     try {
-      // Log in user with Firebase
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
+      await authService.signInWithEmailAndPassword(
+        emailController.text,
+        passwordController.text,
       );
-
-      // Close the loading dialog on success
-      if (context.mounted) Navigator.of(context).pop();
-
-      // Optionally, navigate to another screen here
-      // Navigator.of(context).pushReplacement(...);
-    } on FirebaseAuthException catch (e) {
-      Navigator.of(context).pop(); // Close the loading dialog
-      errorDialog(context, e.message ?? "An error occurred during login.");
     } catch (e) {
-      Navigator.of(context).pop(); // Close the loading dialog
-      errorDialog(context, "An unknown error occurred.");
+      showDialog(
+        builder: (context) => AlertDialog(
+          title: const Text('Error'),
+          content: Text(e.toString()),
+        ),
+        context: context,
+      );
     }
   }
 

@@ -1,3 +1,4 @@
+import 'package:chat_app/pages/setting_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -49,35 +50,20 @@ class MyDrawer extends StatelessWidget {
                     Navigator.pop(context);
 
                     // Navigate to profile page
-                    Navigator.pushNamed(context, '/profile_page');
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const SettingPage()));
                   },
                   leading: Icon(
-                    Icons.person,
+                    Icons.settings,
                     color: Theme.of(context).colorScheme.inversePrimary,
                   ),
-                  title: const Text('P R O F I L E'),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 25.0, vertical: 10.0),
-                child: ListTile(
-                  onTap: () {
-                    Navigator.pop(context);
-
-                    // Navigate to profile page
-                    Navigator.pushNamed(context, '/users_page');
-                  },
-                  leading: Icon(
-                    Icons.group,
-                    color: Theme.of(context).colorScheme.inversePrimary,
-                  ),
-                  title: const Text('U S E R S'),
+                  title: const Text('S E T T I N G S'),
                 ),
               ),
             ],
           ),
-
           Padding(
             padding:
                 const EdgeInsets.symmetric(horizontal: 25.0, vertical: 10.0),
